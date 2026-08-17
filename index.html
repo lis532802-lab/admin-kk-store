@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KK STORE — Admin Console</title>
+  <meta name="theme-color" content="#030d1c" />
+
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* ==========================================================================
+       1. THEME VARIABLES & BASE (Live Water Flow Blue)
+       ========================================================================== */
+    :root {
+      --bg-deep: #030d1c;
+      --bg-surface: #061833;
+      --bg-elevated: #0b254a;
+      --bg-card: rgba(11, 37, 74, 0.6);
+      
+      --cyan-bright: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.4);
+      --aqua-main: #00b4d8;
+      --deep-ocean: #0077b6;
+      --marine-dark: #023e8a;
+      
+      --success: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      
+      --card-border: rgba(0, 240, 255, 0.16);
+      --card-border-hover: rgba(0, 240, 255, 0.5);
+      
+      --text-main: #f0f9ff;
+      --text-muted: #94b8db;
+      --text-dim: #5c83a8;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      
+      --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, .brand-title {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Ambient Canvas */
+    #water-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* ==========================================================================
+       2. AUTH / LOGIN VIEW
+       ========================================================================== */
+    #authOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #061e3e 0%, #030d1c 100%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(11, 37, 74, 0.7);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInScale 0.4s var(--transition);
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.94) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .login-badge {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--cyan-bright), var(--deep-ocean));
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 1.8rem;
+      color: #030d1c;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 24px var(--cyan-glow);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .login-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff, var(--cyan-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-sub {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .input-control {
+      width: 100%;
+      background: rgba(3, 13, 28, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 13px 16px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .input-control:focus {
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 16px var(--cyan-glow);
+      background: rgba(3, 13, 28, 0.9);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--cyan-bright), var(--deep-ocean));
+      border: none;
+      color: #030d1c;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px var(--cyan-glow);
+      transition: var(--transition);
+      margin-top: 10px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 240, 255, 0.6);
+    }
+
+    /* ==========================================================================
+       3. ADMIN LAYOUT & SIDEBAR
+       ========================================================================== */
+    #adminApp {
+      display: none;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 270px;
+      background: rgba(6, 24, 51, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: var(--transition);
+    }
+
+    .sidebar-brand {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.08);
+    }
+
+    .sb-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--cyan-bright), var(--deep-ocean));
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #030d1c;
+      font-size: 1.2rem;
+      font-weight: 900;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .sb-text .title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff, var(--cyan-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .sb-text .sub {
+      font-size: 0.68rem;
+      color: var(--cyan-bright);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-menu {
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .nav-item i {
+      font-size: 1.1rem;
+      width: 22px;
+      text-align: center;
+    }
+
+    .nav-item:hover {
+      background: rgba(0, 240, 255, 0.08);
+      color: #fff;
+      border-color: rgba(0, 240, 255, 0.2);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 119, 182, 0.35));
+      border-color: var(--cyan-bright);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    }
+
+    .nav-item.active i {
+      color: var(--cyan-bright);
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(0, 240, 255, 0.08);
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: var(--radius-md);
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--danger);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-logout:hover {
+      background: rgba(248, 113, 113, 0.2);
+      border-color: var(--danger);
+    }
+
+    /* Main Content Area */
+    .main-wrapper {
+      margin-left: 270px;
+      flex: 1;
+      padding: 30px;
+      max-width: 1500px;
+      transition: var(--transition);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: rgba(11, 37, 74, 0.8);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .status-chip {
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: var(--success);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ==========================================================================
+       4. DASHBOARD VIEW & STATS
+       ========================================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--card-border-hover);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 240, 255, 0.15);
+    }
+
+    .stat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      display: grid;
+      place-items: center;
+      color: var(--cyan-bright);
+      font-size: 1.1rem;
+    }
+
+    .stat-val {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Panels & Tables */
+    .panel-box {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .custom-table th {
+      padding: 14px 16px;
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+      letter-spacing: 0.5px;
+    }
+
+    .custom-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+
+    .custom-table tr:hover td {
+      background: rgba(0, 240, 255, 0.03);
+      color: #fff;
+    }
+
+    .table-app-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .t-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .t-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    .t-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-pub {
+      background: rgba(52, 211, 153, 0.12);
+      color: var(--success);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .badge-unpub {
+      background: rgba(251, 191, 36, 0.12);
+      color: var(--warning);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .action-btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-act {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: var(--transition);
+    }
+
+    .btn-act:hover {
+      color: #fff;
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--cyan-bright);
+    }
+
+    .btn-act.danger:hover {
+      background: rgba(248, 113, 113, 0.25);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* ==========================================================================
+       5. UPLOAD / EDIT FORM VIEW
+       ========================================================================== */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .dropzone {
+      border: 2px dashed var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 30px 20px;
+      text-align: center;
+      background: rgba(3, 13, 28, 0.4);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .dropzone:hover {
+      border-color: var(--cyan-bright);
+      background: rgba(0, 240, 255, 0.05);
+    }
+
+    .dropzone i {
+      font-size: 2.2rem;
+      color: var(--cyan-bright);
+      margin-bottom: 10px;
+    }
+
+    .dropzone-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .dropzone-sub {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .progress-wrap {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan-bright), var(--deep-ocean));
+      transition: width 0.2s ease;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      margin-top: 6px;
+      color: var(--cyan-bright);
+      font-weight: 600;
+    }
+
+    .switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: .3s;
+      border-radius: 34px;
+      border: 1px solid var(--card-border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, var(--cyan-bright), var(--deep-ocean));
+      border-color: var(--cyan-bright);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+      background-color: #030d1c;
+    }
+
+    .btn-submit {
+      padding: 15px 30px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--cyan-bright), var(--deep-ocean));
+      border: none;
+      color: #030d1c;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px var(--cyan-glow);
+      transition: var(--transition);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 240, 255, 0.6);
+    }
+
+    /* ==========================================================================
+       6. MODAL & TOAST
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 13, 28, 0.85);
+      backdrop-filter: blur(15px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 30px rgba(0, 240, 255, 0.15);
+      transform: scale(0.95);
+      transition: var(--transition);
+    }
+
+    .modal-backdrop.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: rgba(6, 24, 51, 0.95);
+      border: 1px solid var(--cyan-bright);
+      backdrop-filter: blur(14px);
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px var(--cyan-glow);
+      animation: slideToast 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      max-width: 380px;
+    }
+
+    .toast.success i { color: var(--success); }
+    .toast.error { border-color: var(--danger); }
+    .toast.error i { color: var(--danger); }
+
+    @keyframes slideToast {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Code block for rules */
+    pre.rules-box {
+      background: #020813;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      color: #a5f3fc;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      font-family: monospace;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       7. RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-wrapper {
+        margin-left: 0;
+        padding: 20px;
+      }
+      .mobile-menu-toggle {
+        display: block;
+      }
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Live Background Water Flow Canvas -->
+  <canvas id="water-canvas"></canvas>
+
+  <!-- ==========================================================================
+       1. AUTH / LOGIN VIEW
+       ========================================================================== -->
+  <div id="authOverlay">
+    <div class="login-card">
+      <div class="login-badge">
+        <i class="fa-solid fa-droplet"></i>
+      </div>
+      <div class="login-header">
+        <h2 class="login-title">KK STORE ADMIN</h2>
+        <p class="login-sub">Secure Master Control Console</p>
+      </div>
+
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label class="form-label"><i class="fa-solid fa-user-shield"></i> Admin Username</label>
+          <input type="text" id="loginUser" class="input-control" placeholder="Enter admin username..." autocomplete="off" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i class="fa-solid fa-key"></i> Password</label>
+          <input type="password" id="loginPass" class="input-control" placeholder="Enter secure password..." required />
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="fa-solid fa-right-to-bracket"></i> Authenticate & Enter
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       2. MAIN ADMIN APP INTERFACE
+       ========================================================================== -->
+  <div id="adminApp">
+    <div class="app-layout">
+      
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="sb-logo"><i class="fa-solid fa-droplet"></i></div>
+          <div class="sb-text">
+            <div class="title">KK STORE</div>
+            <div class="sub">Admin Center</div>
+          </div>
+        </div>
+
+        <nav class="sidebar-menu">
+          <div class="nav-item active" onclick="switchTab('dashboard')">
+            <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('upload')">
+            <i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload App</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('all-apps')">
+            <i class="fa-solid fa-layer-group"></i> <span>All Apps</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('categories')">
+            <i class="fa-solid fa-folder-tree"></i> <span>Categories</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('downloads')">
+            <i class="fa-solid fa-chart-line"></i> <span>Downloads</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('settings')">
+            <i class="fa-solid fa-shield-halved"></i> <span>Security & Rules</span>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="btn-logout" onclick="handleLogout()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content Page -->
+      <main class="main-wrapper">
+        
+        <!-- Top Bar -->
+        <div class="top-bar">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <h1 class="page-title" id="pageHeading">Dashboard Overview</h1>
+          </div>
+          <div class="top-actions">
+            <div class="status-chip">
+              <i class="fa-solid fa-circle-dot fa-fade"></i> RTDB Connected
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+             TAB 1: DASHBOARD
+             ========================================================================== -->
+        <div class="tab-content" id="tab-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-head">
+                <span class="stat-label">Total Applications</span>
+                <div class="stat-icon"><i class="fa-solid fa-cube"></i></div>
+              </div>
+              <div class="stat-val" id="statTotalApps">0</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-head">
+                <span class="stat-label">Total Games</span>
+                <div class="stat-icon"><i class="fa-solid fa-gamepad"></i></div>
+              </div>
+              <div class="stat-val" id="statTotalGames">0</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-head">
+                <span class="stat-label">Total Downloads</span>
+                <div class="stat-icon"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+              </div>
+              <div class="stat-val" id="statTotalDownloads">0</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-head">
+                <span class="stat-label">Published Live</span>
+                <div class="stat-icon"><i class="fa-solid fa-eye" style="color: var(--success);"></i></div>
+              </div>
+              <div class="stat-val" style="color: var(--success);" id="statPublished">0</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-head">
+                <span class="stat-label">Unpublished Drafts</span>
+                <div class="stat-icon"><i class="fa-solid fa-eye-slash" style="color: var(--warning);"></i></div>
+              </div>
+              <div class="stat-val" style="color: var(--warning);" id="statUnpublished">0</div>
+            </div>
+          </div>
+
+          <!-- Recent Uploads Table -->
+          <div class="panel-box">
+            <div class="panel-header">
+              <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Uploads</h2>
+              <button class="btn-submit" style="padding: 8px 16px; font-size: 0.85rem;" onclick="switchTab('upload')">
+                <i class="fa-solid fa-plus"></i> New Upload
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>App Name</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Version</th>
+                    <th>Downloads</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardRecentTbody">
+                  <tr><td colspan="7" style="text-align: center; padding: 20px;">Listening to Realtime Database...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+             TAB 2: UPLOAD APP
+             ========================================================================== -->
+        <div class="tab-content" id="tab-upload" style="display: none;">
+          <div class="panel-box">
+            <div class="panel-header">
+              <h2 class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Upload App or Game to KK STORE</h2>
+            </div>
+
+            <form id="uploadAppForm" onsubmit="handleUploadSubmit(event)">
+              
+              <!-- File Drag & Drop -->
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-file-arrow-up"></i> Select APK / Application File</label>
+                <div class="dropzone" onclick="document.getElementById('appFileInput').click()">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <div class="dropzone-text" id="dropzoneFileName">Click to Browse or Drag & Drop File</div>
+                  <div class="dropzone-sub">Supports .APK, .ZIP, .EXE, .DMG, or Web Packages (Direct Firebase Storage)</div>
+                  <input type="file" id="appFileInput" style="display: none;" onchange="onFileSelected(event)" />
+                </div>
+                
+                <!-- Upload Progress -->
+                <div class="progress-wrap" id="uploadProgressWrap">
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="uploadProgressBar"></div>
+                  </div>
+                  <div class="progress-info">
+                    <span id="uploadProgressStatus">Uploading to Firebase Storage...</span>
+                    <span id="uploadProgressPercent">0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">App / Game Name *</label>
+                  <input type="text" id="upName" class="input-control" placeholder="e.g., Cyber Surge 3D" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">App Type *</label>
+                  <select id="upType" class="input-control">
+                    <option value="Mobile APK">Mobile APK (Android)</option>
+                    <option value="Web/Desktop">Web / Desktop Download</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Category *</label>
+                  <select id="upCategory" class="input-control">
+                    <option value="Games">Games</option>
+                    <option value="Apps">Apps</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Education">Education</option>
+                    <option value="Social">Social</option>
+                    <option value="Productivity">Productivity</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Version *</label>
+                  <input type="text" id="upVersion" class="input-control" placeholder="e.g., 1.0.4" required />
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Developer / Studio Name</label>
+                  <input type="text" id="upDev" class="input-control" placeholder="e.g., KK Interactive" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Calculated File Size (Auto or Manual)</label>
+                  <input type="text" id="upSize" class="input-control" placeholder="e.g., 45.2 MB" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Icon Image URL</label>
+                <input type="url" id="upIconUrl" class="input-control" placeholder="https://example.com/icon.png" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Screenshot URLs (Separate multiple with comma or newline)</label>
+                <textarea id="upScreenshots" class="input-control" rows="2" placeholder="https://example.com/shot1.png, https://example.com/shot2.png"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="upDesc" class="input-control" rows="3" placeholder="Describe the application features, permissions, and gameplay..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Update Changelog / Info</label>
+                <input type="text" id="upChangelog" class="input-control" placeholder="e.g., Bug fixes, new water effect UI" />
+              </div>
+
+              <div class="form-group" style="margin-bottom: 30px;">
+                <label class="switch-wrapper">
+                  <div class="switch">
+                    <input type="checkbox" id="upPublished" checked />
+                    <span class="slider"></span>
+                  </div>
+                  <span style="font-weight: 700; color: #fff;">Publish Live to KK STORE Immediately</span>
+                </label>
+              </div>
+
+              <button type="submit" id="btnUploadSubmit" class="btn-submit">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Upload &amp; Save Metadata
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+             TAB 3: ALL APPS MANAGEMENT
+             ========================================================================== -->
+        <div class="tab-content" id="tab-all-apps" style="display: none;">
+          <div class="panel-box">
+            <div class="panel-header">
+              <h2 class="panel-title"><i class="fa-solid fa-layer-group"></i> All Applications in Store</h2>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="allAppsSearch" class="input-control" style="width: 250px; padding: 8px 14px;" placeholder="Filter apps..." oninput="renderAllAppsTable()" />
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>App</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Version</th>
+                    <th>Size</th>
+                    <th>Downloads</th>
+                    <th>Live Status</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="allAppsTbody">
+                  <tr><td colspan="9" style="text-align: center;">Loading apps...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+             TAB 4: CATEGORIES
+             ========================================================================== -->
+        <div class="tab-content" id="tab-categories" style="display: none;">
+          <div class="panel-box">
+            <div class="panel-header">
+              <h2 class="panel-title"><i class="fa-solid fa-folder-tree"></i> Store Categories Distribution</h2>
+            </div>
+            <div class="stats-grid" id="categoryDistributionGrid"></div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+             TAB 5: DOWNLOADS ANALYTICS
+             ========================================================================== -->
+        <div class="tab-content" id="tab-downloads" style="display: none;">
+          <div class="panel-box">
+            <div class="panel-header">
+              <h2 class="panel-title"><i class="fa-solid fa-chart-line"></i> Top Downloaded Apps Leaderboard</h2>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>App</th>
+                    <th>Category</th>
+                    <th>Total Downloads</th>
+                    <th>Type</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="downloadsLeaderboardTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+             TAB 6: SETTINGS & FIREBASE SECURITY RULES
+             ========================================================================== -->
+        <div class="tab-content" id="tab-settings" style="display: none;">
+          <div class="panel-box">
+            <div class="panel-header">
+              <h2 class="panel-title"><i class="fa-solid fa-shield-halved"></i> Firebase Security Configuration</h2>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+              Copy and paste these security rules into your <b>Firebase Realtime Database</b> and <b>Firebase Storage</b> consoles so public users can only read published apps &amp; increment downloads without tampering.
+            </p>
+
+            <h4 style="color: var(--cyan-bright); margin-bottom: 8px;">1. Realtime Database Security Rules</h4>
+            <pre class="rules-box">{
+  "rules": {
+    "apps": {
+      ".read": true,
+      "$appId": {
+        // Only allow authenticated admin to write full document, or public to atomically increment downloadCount
+        ".write": "auth != null || (newData.child('downloadCount').val() == data.child('downloadCount').val() + 1 && !newData.child('fileUrl').changed())"
+      }
+    }
+  }
+}</pre>
+            <br />
+            <h4 style="color: var(--cyan-bright); margin-bottom: 8px;">2. Firebase Storage Security Rules</h4>
+            <pre class="rules-box">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /apps/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null || true; // Set auth requirement for production upload
+    }
+  }
+}</pre>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       EDIT APP MODAL
+       ========================================================================== -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 style="font-size: 1.4rem; margin-bottom: 20px; color: #fff;"><i class="fa-solid fa-pen-to-square"></i> Edit Application</h3>
+      
+      <form id="editAppForm" onsubmit="handleEditSubmit(event)">
+        <input type="hidden" id="editAppId" />
+        
+        <div class="form-group">
+          <label class="form-label">App / Game Name</label>
+          <input type="text" id="editName" class="input-control" required />
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="editCategory" class="input-control">
+              <option value="Games">Games</option>
+              <option value="Apps">Apps</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Tools">Tools</option>
+              <option value="Education">Education</option>
+              <option value="Social">Social</option>
+              <option value="Productivity">Productivity</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Version</label>
+            <input type="text" id="editVersion" class="input-control" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Developer</label>
+            <input type="text" id="editDev" class="input-control" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Downloads Count</label>
+            <input type="number" id="editDownloads" class="input-control" min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">File URL</label>
+          <input type="url" id="editFileUrl" class="input-control" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Icon URL</label>
+          <input type="url" id="editIconUrl" class="input-control" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="editDesc" class="input-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="switch-wrapper">
+            <div class="switch">
+              <input type="checkbox" id="editPublished" />
+              <span class="slider"></span>
+            </div>
+            <span style="font-weight: 700; color: #fff;">Published Live</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit" style="width: 100%; justify-content: center;">
+          <i class="fa-solid fa-floppy-disk"></i> Save &amp; Update App
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================================
+       FIREBASE SDKS
+       ========================================================================== -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+  <script>
+    /* ==========================================================================
+       1. FIREBASE CONFIGURATION & INITIALIZATION
+       ========================================================================== */
+    const firebaseConfig = {
+      projectId: "stxwin-82a48",
+      databaseURL: "https://stxwin-82a48-default-rtdb.firebaseio.com",
+      storageBucket: "stxwin-82a48.firebasestorage.app",
+      apiKey: "AIzaSyAQOxmY1NL-2-NQmtUKgVwFZ8SaNxlIN4"
+    };
+
+    let rtdb, storage;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      rtdb = firebase.database();
+      storage = firebase.storage();
+      console.log("🌊 KK STORE Admin: Firebase RTDB & Storage Connected.");
+    } catch (err) {
+      console.error("Firebase init failed:", err);
+    }
+
+    // App State
+    let appsData = {};
+    let selectedUploadFile = null;
+
+    /* ==========================================================================
+       2. AUTHENTICATION (Credentials: kkr / 1212)
+       ========================================================================== */
+    const ADMIN_USER = "kkr";
+    const ADMIN_PASS = "1212";
+
+    function checkAuth() {
+      const isAuthed = sessionStorage.getItem("kk_admin_auth");
+      if (isAuthed === "true") {
+        document.getElementById("authOverlay").style.display = "none";
+        document.getElementById("adminApp").style.display = "block";
+        initRealtimeListener();
+      } else {
+        document.getElementById("authOverlay").style.display = "flex";
+        document.getElementById("adminApp").style.display = "none";
+      }
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById("loginUser").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        sessionStorage.setItem("kk_admin_auth", "true");
+        showToast("Authenticated successfully. Welcome Admin!", "success");
+        checkAuth();
+      } else {
+        showToast("Invalid credentials. Try again.", "error");
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem("kk_admin_auth");
+      showToast("Logged out safely.", "info");
+      checkAuth();
+    }
+
+    /* ==========================================================================
+       3. REALTIME DATABASE LIVE LISTENER
+       ========================================================================== */
+    function initRealtimeListener() {
+      if (!rtdb) return;
+
+      rtdb.ref("apps").on("value", (snapshot) => {
+        appsData = snapshot.val() || {};
+        updateDashboardStats();
+        renderRecentTable();
+        renderAllAppsTable();
+        renderCategoriesView();
+        renderDownloadsLeaderboard();
+      }, (error) => {
+        showToast("Database error: " + error.message, "error");
+      });
+    }
+
+    /* ==========================================================================
+       4. STATS & TABLES RENDERING
+       ========================================================================== */
+    function formatDownloads(count) {
+      const num = Number(count) || 0;
+      if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + 'M';
+      if (num >= 1_000) return (num / 1_000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function updateDashboardStats() {
+      const list = Object.values(appsData);
+      const total = list.length;
+      const games = list.filter(a => (a.category || '').toLowerCase() === 'games').length;
+      const published = list.filter(a => a.published === true).length;
+      const unpublished = total - published;
+      const totalDl = list.reduce((sum, a) => sum + (Number(a.downloadCount) || 0), 0);
+
+      document.getElementById('statTotalApps').textContent = total;
+      document.getElementById('statTotalGames').textContent = games;
+      document.getElementById('statTotalDownloads').textContent = formatDownloads(totalDl);
+      document.getElementById('statPublished').textContent = published;
+      document.getElementById('statUnpublished').textContent = unpublished;
+    }
+
+    function renderRecentTable() {
+      const tbody = document.getElementById("dashboardRecentTbody");
+      const list = Object.entries(appsData).map(([id, val]) => ({ id, ...val }));
+
+      // Sort by createdAt descending
+      list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      const recent = list.slice(0, 5);
+
+      if (recent.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-dim);">No applications added yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = recent.map(app => `
+        <tr>
+          <td>
+            <div class="table-app-cell">
+              <img class="t-icon" src="${app.iconUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'}" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'" />
+              <div>
+                <div class="t-title">${escapeHtml(app.name)}</div>
+                <div class="t-sub">${escapeHtml(app.developer || 'KK Studio')}</div>
+              </div>
+            </div>
+          </td>
+          <td><span style="color: var(--cyan-bright); font-weight:600;">${app.category || 'Other'}</span></td>
+          <td>${app.type || 'Mobile APK'}</td>
+          <td>v${app.version || '1.0.0'}</td>
+          <td>${formatDownloads(app.downloadCount)}</td>
+          <td>
+            <span class="badge-status ${app.published ? 'badge-pub' : 'badge-unpub'}">
+              <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> ${app.published ? 'Published' : 'Draft'}
+            </span>
+          </td>
+          <td>
+            <div class="action-btn-group">
+              <button class="btn-act" title="Edit" onclick="openEditModal('${app.id}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-act" title="${app.published ? 'Unpublish' : 'Publish'}" onclick="togglePublish('${app.id}', ${!app.published})">
+                <i class="fa-solid ${app.published ? 'fa-eye-slash' : 'fa-eye'}"></i>
+              </button>
+              <button class="btn-act danger" title="Delete" onclick="deleteApp('${app.id}')"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAllAppsTable() {
+      const tbody = document.getElementById("allAppsTbody");
+      const filter = (document.getElementById("allAppsSearch").value || "").toLowerCase();
+      let list = Object.entries(appsData).map(([id, val]) => ({ id, ...val }));
+
+      if (filter) {
+        list = list.filter(a => (a.name || '').toLowerCase().includes(filter) || (a.category || '').toLowerCase().includes(filter));
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-dim);">No applications match the criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(app => `
+        <tr>
+          <td>
+            <div class="table-app-cell">
+              <img class="t-icon" src="${app.iconUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'}" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'" />
+              <div>
+                <div class="t-title">${escapeHtml(app.name)}</div>
+                <div class="t-sub">${escapeHtml(app.developer || 'KK Studio')}</div>
+              </div>
+            </div>
+          </td>
+          <td><span style="color: var(--cyan-bright); font-weight: 600;">${app.category || 'Other'}</span></td>
+          <td>${app.type || 'APK'}</td>
+          <td>v${app.version || '1.0'}</td>
+          <td>${app.fileSize || 'N/A'}</td>
+          <td><i class="fa-solid fa-download" style="color: var(--cyan-bright); font-size: 0.75rem;"></i> ${formatDownloads(app.downloadCount)}</td>
+          <td>
+            <span class="badge-status ${app.published ? 'badge-pub' : 'badge-unpub'}">
+              ${app.published ? 'Live' : 'Hidden'}
+            </span>
+          </td>
+          <td>${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'Recent'}</td>
+          <td>
+            <div class="action-btn-group">
+              <button class="btn-act" title="Edit" onclick="openEditModal('${app.id}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-act" title="${app.published ? 'Unpublish' : 'Publish'}" onclick="togglePublish('${app.id}', ${!app.published})">
+                <i class="fa-solid ${app.published ? 'fa-eye-slash' : 'fa-eye'}"></i>
+              </button>
+              <button class="btn-act danger" title="Delete" onclick="deleteApp('${app.id}')"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderCategoriesView() {
+      const grid = document.getElementById("categoryDistributionGrid");
+      const categories = ['Games', 'Apps', 'Entertainment', 'Tools', 'Education', 'Social', 'Productivity', 'Other'];
+      const list = Object.values(appsData);
+
+      grid.innerHTML = categories.map(cat => {
+        const count = list.filter(a => (a.category || '').toLowerCase() === cat.toLowerCase()).length;
+        return `
+          <div class="stat-card">
+            <div class="stat-head">
+              <span class="stat-label">${cat}</span>
+              <div class="stat-icon"><i class="fa-solid fa-folder"></i></div>
+            </div>
+            <div class="stat-val">${count}</div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 6px;">Total Published & Drafts</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDownloadsLeaderboard() {
+      const tbody = document.getElementById("downloadsLeaderboardTbody");
+      const list = Object.entries(appsData).map(([id, val]) => ({ id, ...val }));
+      list.sort((a, b) => (Number(b.downloadCount) || 0) - (Number(a.downloadCount) || 0));
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No downloads recorded yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map((app, index) => `
+        <tr>
+          <td><strong style="color: ${index < 3 ? 'var(--cyan-bright)' : 'var(--text-dim)'}; font-size: 1.1rem;">#${index + 1}</strong></td>
+          <td>
+            <div class="table-app-cell">
+              <img class="t-icon" src="${app.iconUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'}" />
+              <div class="t-title">${escapeHtml(app.name)}</div>
+            </div>
+          </td>
+          <td>${app.category}</td>
+          <td><strong style="color: #fff; font-size: 1rem;">${(Number(app.downloadCount) || 0).toLocaleString()}</strong></td>
+          <td>${app.type}</td>
+          <td>
+            <button class="btn-submit" style="padding: 6px 12px; font-size: 0.78rem;" onclick="openEditModal('${app.id}')">
+              Adjust Count
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       5. UPLOAD LOGIC & FIREBASE STORAGE INTEGRATION
+       ========================================================================== */
+    function onFileSelected(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedUploadFile = file;
+      document.getElementById('dropzoneFileName').textContent = `Selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+      
+      // Auto-calculate size
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      document.getElementById('upSize').value = `${sizeMB} MB`;
+    }
+
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnUploadSubmit");
+      btn.disabled = true;
+
+      const name = document.getElementById("upName").value.trim();
+      const type = document.getElementById("upType").value;
+      const category = document.getElementById("upCategory").value;
+      const version = document.getElementById("upVersion").value.trim();
+      const dev = document.getElementById("upDev").value.trim() || 'KK Studio';
+      const size = document.getElementById("upSize").value.trim() || '25 MB';
+      const iconUrl = document.getElementById("upIconUrl").value.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80';
+      const desc = document.getElementById("upDesc").value.trim();
+      const changelog = document.getElementById("upChangelog").value.trim();
+      const published = document.getElementById("upPublished").checked;
+      
+      const rawScreenshots = document.getElementById("upScreenshots").value;
+      const screenshots = rawScreenshots.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+
+      let fileDownloadUrl = "";
+      let storagePath = "";
+
+      try {
+        // 1. Upload File to Firebase Storage if selected
+        if (selectedUploadFile && storage) {
+          const progressWrap = document.getElementById("uploadProgressWrap");
+          const progressBar = document.getElementById("uploadProgressBar");
+          const progressPercent = document.getElementById("uploadProgressPercent");
+          progressWrap.style.display = "block";
+
+          const safeFileName = Date.now() + "_" + selectedUploadFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
+          storagePath = `apps/${safeFileName}`;
+          const storageRef = storage.ref(storagePath);
+          const uploadTask = storageRef.put(selectedUploadFile);
+
+          await new Promise((resolve, reject) => {
+            uploadTask.on(
+              "state_changed",
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressBar.style.width = progress + "%";
+                progressPercent.textContent = Math.round(progress) + "%";
+              },
+              (error) => reject(error),
+              async () => {
+                fileDownloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                resolve();
+              }
+            );
+          });
+        }
+
+        // 2. Save metadata to Realtime Database
+        const newAppRef = rtdb.ref("apps").push();
+        const appPayload = {
+          name,
+          type,
+          category,
+          version,
+          developer: dev,
+          fileSize: size,
+          iconUrl,
+          fileUrl: fileDownloadUrl,
+          storagePath: storagePath,
+          screenshots,
+          description: desc,
+          updateInformation: changelog,
+          published,
+          downloadCount: 0,
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        await newAppRef.set(appPayload);
+
+        showToast(`App "${name}" uploaded and saved successfully!`, "success");
+        
+        // Reset form
+        document.getElementById("uploadAppForm").reset();
+        document.getElementById("dropzoneFileName").textContent = "Click to Browse or Drag & Drop File";
+        document.getElementById("uploadProgressWrap").style.display = "none";
+        selectedUploadFile = null;
+        
+        switchTab("all-apps");
+      } catch (err) {
+        console.error("Upload error:", err);
+        showToast("Upload failed: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ==========================================================================
+       6. ACTIONS: EDIT, TOGGLE PUBLISH, DELETE
+       ========================================================================== */
+    async function togglePublish(appId, newStatus) {
+      try {
+        await rtdb.ref(`apps/${appId}`).update({
+          published: newStatus,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showToast(`App status updated to ${newStatus ? 'Published Live' : 'Unpublished'}.`, "success");
+      } catch (err) {
+        showToast("Status update failed: " + err.message, "error");
+      }
+    }
+
+    async function deleteApp(appId) {
+      if (!confirm("Are you sure you want to delete this app permanently from KK STORE?")) return;
+
+      try {
+        const app = appsData[appId];
+        // Clean storage file if path exists
+        if (app && app.storagePath && storage) {
+          try {
+            await storage.ref(app.storagePath).delete();
+          } catch (e) {
+            console.warn("Storage deletion note:", e);
+          }
+        }
+        await rtdb.ref(`apps/${appId}`).remove();
+        showToast("Application deleted completely.", "info");
+      } catch (err) {
+        showToast("Delete failed: " + err.message, "error");
+      }
+    }
+
+    function openEditModal(appId) {
+      const app = appsData[appId];
+      if (!app) return;
+
+      document.getElementById("editAppId").value = appId;
+      document.getElementById("editName").value = app.name || '';
+      document.getElementById("editCategory").value = app.category || 'Other';
+      document.getElementById("editVersion").value = app.version || '1.0.0';
+      document.getElementById("editDev").value = app.developer || '';
+      document.getElementById("editDownloads").value = app.downloadCount || 0;
+      document.getElementById("editFileUrl").value = app.fileUrl || '';
+      document.getElementById("editIconUrl").value = app.iconUrl || '';
+      document.getElementById("editDesc").value = app.description || '';
+      document.getElementById("editPublished").checked = !!app.published;
+
+      document.getElementById("editModal").classList.add("active");
+    }
+
+    function closeEditModal() {
+      document.getElementById("editModal").classList.remove("active");
+    }
+
+    async function handleEditSubmit(e) {
+      e.preventDefault();
+      const appId = document.getElementById("editAppId").value;
+      if (!appId) return;
+
+      const payload = {
+        name: document.getElementById("editName").value.trim(),
+        category: document.getElementById("editCategory").value,
+        version: document.getElementById("editVersion").value.trim(),
+        developer: document.getElementById("editDev").value.trim(),
+        downloadCount: Number(document.getElementById("editDownloads").value) || 0,
+        fileUrl: document.getElementById("editFileUrl").value.trim(),
+        iconUrl: document.getElementById("editIconUrl").value.trim(),
+        description: document.getElementById("editDesc").value.trim(),
+        published: document.getElementById("editPublished").checked,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      };
+
+      try {
+        await rtdb.ref(`apps/${appId}`).update(payload);
+        showToast("Application details updated successfully!", "success");
+        closeEditModal();
+      } catch (err) {
+        showToast("Update failed: " + err.message, "error");
+      }
+    }
+
+    /* ==========================================================================
+       7. UI NAVIGATION & TABS
+       ========================================================================== */
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
+      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+
+      const targetTab = document.getElementById(`tab-${tabId}`);
+      if (targetTab) targetTab.style.display = "block";
+
+      const activeNav = Array.from(document.querySelectorAll(".nav-item")).find(el => el.getAttribute('onclick')?.includes(tabId));
+      if (activeNav) activeNav.classList.add("active");
+
+      const headings = {
+        'dashboard': 'Dashboard Overview',
+        'upload': 'Upload New Application',
+        'all-apps': 'Application Catalog Management',
+        'categories': 'Store Categories',
+        'downloads': 'Download Metrics & Analytics',
+        'settings': 'Security & System Settings'
+      };
+      document.getElementById("pageHeading").textContent = headings[tabId] || 'Admin Center';
+      
+      // Close mobile menu if open
+      document.getElementById("sidebar").classList.remove("open");
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+    }
+
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      let icon = "fa-circle-info";
+      if (type === "success") icon = "fa-circle-check";
+      if (type === "error") icon = "fa-triangle-exclamation";
+
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHtml(msg)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(100%)";
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    /* ==========================================================================
+       8. LIVE WATER CANVAS FLOW ANIMATION
+       ========================================================================== */
+    const canvas = document.getElementById('water-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let step = 0;
+    function drawWater() {
+      ctx.clearRect(0, 0, width, height);
+      step += 0.015;
+
+      // Wave 1
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0, 180, 216, 0.05)";
+      ctx.moveTo(0, height);
+      for (let x = 0; x <= width; x += 20) {
+        const y = Math.sin(x * 0.003 + step) * 25 + (height * 0.88);
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(width, height);
+      ctx.fill();
+
+      // Wave 2
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0, 240, 255, 0.03)";
+      ctx.moveTo(0, height);
+      for (let x = 0; x <= width; x += 20) {
+        const y = Math.cos(x * 0.004 + step * 1.2) * 35 + (height * 0.9);
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(width, height);
+      ctx.fill();
+
+      requestAnimationFrame(drawWater);
+    }
+    drawWater();
+
+    // Check initial auth on page load
+    checkAuth();
+  </script>
+</body>
+</html>
