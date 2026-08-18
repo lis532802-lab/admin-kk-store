@@ -826,7 +826,7 @@
             <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
             <h1 class="page-title" id="pageHeading">Dashboard Overview</h1>
           </div>
-          <div class="status-chip"><i class="fa-solid fa-circle-dot fa-fade"></i> Storage High-Speed Active</div>
+          <div class="status-chip"><i class="fa-solid fa-circle-dot fa-fade"></i> Connected to Storefront</div>
         </div>
 
         <!-- TAB 1: DASHBOARD -->
@@ -882,7 +882,7 @@
           </div>
         </div>
 
-        <!-- TAB 2: UPLOAD APP (FAST DIRECT UPLOAD) -->
+        <!-- TAB 2: UPLOAD APP -->
         <div class="tab-content" id="tab-upload" style="display: none;">
           <div class="panel-box">
             <div class="panel-header">
@@ -896,7 +896,7 @@
                 <label class="form-label"><i class="fa-solid fa-file-arrow-up"></i> Select Application Binary (.APK, .ZIP, .EXE) *</label>
                 <div class="dropzone" onclick="document.getElementById('appFileInput').click()">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
-                  <div class="dropzone-text" id="dropzoneFileName" style="font-weight: 700; color: #fff; font-size: 0.95rem;">Click or Drop APK File Here</div>
+                  <div class="dropzone-text" id="dropzoneFileName" style="font-weight: 700; color: #fff; font-size: 0.95rem;">Click or Drop File Here</div>
                   <div style="font-size: 0.74rem; color: var(--text-dim); margin-top: 4px;">Optimized Instant Firebase Streaming (No Timeout)</div>
                   <input type="file" id="appFileInput" style="display: none;" onchange="onFileSelected(event)" required />
                 </div>
@@ -982,7 +982,7 @@
                     <input type="checkbox" id="upPublished" checked />
                     <span class="slider"></span>
                   </div>
-                  <span style="font-weight: 700; color: #fff;">Publish Live Immediately</span>
+                  <span style="font-weight: 700; color: #fff;">Publish Live to Store Immediately</span>
                 </label>
               </div>
 
@@ -1139,13 +1139,13 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- FIREBASE APIS -->
+  <!-- FIREBASE SCRIPTS -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
   <script>
-    /* 1. FIREBASE CONFIGURATION */
+    /* 1. FIREBASE INITIALIZATION */
     const firebaseConfig = {
       projectId: "stxwin-82a48",
       databaseURL: "https://stxwin-82a48-default-rtdb.firebaseio.com",
@@ -1161,10 +1161,10 @@
       rtdb = firebase.database();
       storage = firebase.storage();
       
-      // Fix retry timeouts & enable fast streaming
-      storage.setMaxUploadRetryTime(3600000); // 1 hour max retry (prevents immediate retry-limit-exceeded error)
+      // Prevent retry-limit-exceeded error
+      storage.setMaxUploadRetryTime(3600000);
       storage.setMaxOperationRetryTime(3600000);
-      console.log("🌊 KK STORE Admin: Ready & High-Speed Initialized.");
+      console.log("🌊 KK STORE Admin: Connected & High-Speed Active.");
     } catch (err) {
       console.error("Firebase init error:", err);
     }
@@ -1381,7 +1381,7 @@
       `).join('');
     }
 
-    /* 5. FAST 10-SECOND UPLOADER */
+    /* 5. FAST UPLOAD */
     function onFileSelected(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1390,7 +1390,6 @@
       document.getElementById('dropzoneFileName').textContent = `Ready: ${file.name} (${sizeMB} MB)`;
       document.getElementById('upSize').value = `${sizeMB} MB`;
 
-      // Auto-fill app name from filename if empty
       const nameInput = document.getElementById('upName');
       if (!nameInput.value) {
         const cleanDefaultName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
@@ -1402,7 +1401,7 @@
       e.preventDefault();
       
       if (!selectedUploadFile) {
-        showToast("Please select an APK file first!", "error");
+        showToast("Please select an application file first!", "error");
         return;
       }
 
@@ -1433,9 +1432,8 @@
         const storagePath = `apps/${safeName}`;
         const storageRef = storage.ref(storagePath);
 
-        // Fast optimized binary stream with proper MIME headers
         const metadata = {
-          contentType: 'application/vnd.android.package-archive',
+          contentType: selectedUploadFile.type || 'application/octet-stream',
           cacheControl: 'public,max-age=31536000'
         };
 
@@ -1451,7 +1449,7 @@
               
               progressBar.style.width = percent + "%";
               progressPercent.textContent = `${percent}% (${transferredMB}/${totalMB} MB)`;
-              progressStatus.textContent = "High-speed uploading...";
+              progressStatus.textContent = "Streaming to Cloud Storage...";
             },
             (error) => reject(error),
             async () => {
@@ -1465,7 +1463,7 @@
           );
         });
 
-        // Instantly write to Realtime Database
+        // Write directly to Realtime Database
         const newAppRef = rtdb.ref("apps").push();
         await newAppRef.set({
           name,
@@ -1485,11 +1483,10 @@
           updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
 
-        showToast(`App "${name}" uploaded & saved successfully!`, "success");
+        showToast(`App "${name}" uploaded & live on Store!`, "success");
         
-        // Reset form
         document.getElementById("uploadAppForm").reset();
-        document.getElementById("dropzoneFileName").textContent = "Click or Drop APK File Here";
+        document.getElementById("dropzoneFileName").textContent = "Click or Drop File Here";
         progressWrap.style.display = "none";
         selectedUploadFile = null;
         switchTab("all-apps");
@@ -1627,7 +1624,6 @@
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // Canvas Flow
     const canvas = document.getElementById('water-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
