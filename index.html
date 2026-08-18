@@ -91,7 +91,7 @@
     .login-card {
       width: 100%;
       max-width: 400px;
-      background: rgba(11, 37, 74, 0.8);
+      background: rgba(11, 37, 74, 0.85);
       backdrop-filter: blur(25px);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
@@ -487,8 +487,13 @@
       width: 36px;
       height: 36px;
       border-radius: 8px;
-      background: var(--bg-elevated);
-      object-fit: cover;
+      background: #020813;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      display: grid;
+      place-items: center;
+      color: var(--cyan-bright);
+      font-size: 1.1rem;
+      flex-shrink: 0;
     }
 
     .t-title {
@@ -517,6 +522,12 @@
       background: rgba(251, 191, 36, 0.12);
       color: var(--warning);
       border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .badge-lock {
+      background: rgba(248, 113, 113, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(248, 113, 113, 0.3);
     }
 
     .action-btn-group {
@@ -868,6 +879,7 @@
                     <th>App Name</th>
                     <th>Type</th>
                     <th>Category</th>
+                    <th>Security</th>
                     <th>Version</th>
                     <th>Downloads</th>
                     <th>Status</th>
@@ -875,7 +887,7 @@
                   </tr>
                 </thead>
                 <tbody id="dashboardRecentTbody">
-                  <tr><td colspan="7" style="text-align: center; padding: 18px;">Connecting to database...</td></tr>
+                  <tr><td colspan="8" style="text-align: center; padding: 18px;">Connecting to database...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -886,19 +898,19 @@
         <div class="tab-content" id="tab-upload" style="display: none;">
           <div class="panel-box">
             <div class="panel-header">
-              <h2 class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Quick Upload Application</h2>
+              <h2 class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Upload &amp; Protect Application</h2>
             </div>
 
             <form id="uploadAppForm" onsubmit="handleUploadSubmit(event)">
               
               <!-- Direct File Picker -->
               <div class="form-group">
-                <label class="form-label"><i class="fa-solid fa-file-arrow-up"></i> Select Application Binary (.APK, .ZIP, .EXE) *</label>
+                <label class="form-label"><i class="fa-solid fa-file-arrow-up"></i> Select Binary File (.APK, .ZIP, .EXE)</label>
                 <div class="dropzone" onclick="document.getElementById('appFileInput').click()">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
-                  <div class="dropzone-text" id="dropzoneFileName" style="font-weight: 700; color: #fff; font-size: 0.95rem;">Click or Drop File Here</div>
-                  <div style="font-size: 0.74rem; color: var(--text-dim); margin-top: 4px;">Optimized Instant Firebase Streaming (No Timeout)</div>
-                  <input type="file" id="appFileInput" style="display: none;" onchange="onFileSelected(event)" required />
+                  <div class="dropzone-text" id="dropzoneFileName" style="font-weight: 700; color: #fff; font-size: 0.95rem;">Click to Browse or Drag File Here</div>
+                  <div style="font-size: 0.74rem; color: var(--text-dim); margin-top: 4px;">High-Speed Direct Firebase Storage Stream</div>
+                  <input type="file" id="appFileInput" style="display: none;" onchange="onFileSelected(event)" />
                 </div>
                 
                 <!-- Instant Progress Indicator -->
@@ -907,16 +919,22 @@
                     <div class="progress-bar-fill" id="uploadProgressBar"></div>
                   </div>
                   <div class="progress-info">
-                    <span id="uploadProgressStatus">Streaming to Firebase...</span>
+                    <span id="uploadProgressStatus">Streaming to Firebase Storage...</span>
                     <span id="uploadProgressPercent">0%</span>
                   </div>
                 </div>
               </div>
 
+              <!-- Direct Link Fallback -->
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-link"></i> Or Enter Direct File Download URL (Optional)</label>
+                <input type="url" id="upDirectUrl" class="input-control" placeholder="https://example.com/app.apk (If not uploading file above)" />
+              </div>
+
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label">App / Game Name *</label>
-                  <input type="text" id="upName" class="input-control" placeholder="e.g., Robi" required />
+                  <input type="text" id="upName" class="input-control" placeholder="e.g., Fishstrap" required />
                 </div>
 
                 <div class="form-group">
@@ -949,21 +967,32 @@
                 </div>
               </div>
 
+              <!-- PASSWORD PROTECTION FIELD -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label"><i class="fa-solid fa-shield-halved"></i> Access Security *</label>
+                  <select id="upSecurityType" class="input-control" onchange="togglePasswordInput()">
+                    <option value="free">No Password (Public / Free)</option>
+                    <option value="protected">Password Protected (Locked)</option>
+                  </select>
+                </div>
+
+                <div class="form-group" id="passwordFieldWrap" style="display: none;">
+                  <label class="form-label"><i class="fa-solid fa-key" style="color: var(--warning);"></i> Set Unlock Password *</label>
+                  <input type="text" id="upPassword" class="input-control" placeholder="Set password for this app..." />
+                </div>
+              </div>
+
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label">Developer / Studio Name</label>
-                  <input type="text" id="upDev" class="input-control" placeholder="e.g., KK Studio" />
+                  <input type="text" id="upDev" class="input-control" placeholder="e.g., team frg" />
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">File Size</label>
-                  <input type="text" id="upSize" class="input-control" placeholder="Auto-calculated" />
+                  <input type="text" id="upSize" class="input-control" placeholder="e.g., 14.92 MB" />
                 </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Icon Image URL</label>
-                <input type="url" id="upIconUrl" class="input-control" placeholder="https://example.com/icon.png" />
               </div>
 
               <div class="form-group">
@@ -1007,6 +1036,7 @@
                     <th>App</th>
                     <th>Category</th>
                     <th>Type</th>
+                    <th>Security</th>
                     <th>Version</th>
                     <th>Size</th>
                     <th>Downloads</th>
@@ -1015,7 +1045,7 @@
                   </tr>
                 </thead>
                 <tbody id="allAppsTbody">
-                  <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
+                  <tr><td colspan="9" style="text-align: center;">Loading...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1093,12 +1123,13 @@
             <input type="text" id="editVersion" class="input-control" required />
           </div>
         </div>
-        
+
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">Developer</label>
-            <input type="text" id="editDev" class="input-control" />
+            <label class="form-label">Access Password (Leave blank for Free/Public)</label>
+            <input type="text" id="editPassword" class="input-control" placeholder="Unlock password..." />
           </div>
+
           <div class="form-group">
             <label class="form-label">Downloads Count</label>
             <input type="number" id="editDownloads" class="input-control" min="0" />
@@ -1106,13 +1137,13 @@
         </div>
         
         <div class="form-group">
-          <label class="form-label">File URL</label>
-          <input type="url" id="editFileUrl" class="input-control" />
+          <label class="form-label">Developer</label>
+          <input type="text" id="editDev" class="input-control" />
         </div>
         
         <div class="form-group">
-          <label class="form-label">Icon URL</label>
-          <input type="url" id="editIconUrl" class="input-control" />
+          <label class="form-label">File URL</label>
+          <input type="url" id="editFileUrl" class="input-control" />
         </div>
         
         <div class="form-group">
@@ -1139,17 +1170,17 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- FIREBASE SCRIPTS -->
+  <!-- FIREBASE SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
   <script>
-    /* 1. FIREBASE INITIALIZATION */
+    /* 1. FIREBASE CONFIGURATION */
     const firebaseConfig = {
       projectId: "stxwin-82a48",
       databaseURL: "https://stxwin-82a48-default-rtdb.firebaseio.com",
-      storageBucket: "stxwin-82a48.appspot.com",
+      storageBucket: "stxwin-82a48.firebasestorage.app",
       apiKey: "AIzaSyAQOxmY1NL-2-NQmtUKgVwFZ8SaNxlIN4"
     };
 
@@ -1160,11 +1191,7 @@
       }
       rtdb = firebase.database();
       storage = firebase.storage();
-      
-      // Prevent retry-limit-exceeded error
-      storage.setMaxUploadRetryTime(3600000);
-      storage.setMaxOperationRetryTime(3600000);
-      console.log("🌊 KK STORE Admin: Connected & High-Speed Active.");
+      console.log("🌊 KK STORE Admin: Connected & Ready.");
     } catch (err) {
       console.error("Firebase init error:", err);
     }
@@ -1172,7 +1199,10 @@
     let appsData = {};
     let selectedUploadFile = null;
 
-    /* 2. AUTHENTICATION (Credentials: kkr / 1212) */
+    /* Sleek Black Logo */
+    const DEFAULT_BLACK_LOGO = "data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3e%3crect width='100' height='100' rx='22' fill='%23050e1a' stroke='%2300f0ff' stroke-opacity='0.3' stroke-width='2'/%3e%3cpath d='M50 24L72 66H28L50 24Z' fill='none' stroke='%2300f0ff' stroke-width='4' stroke-linejoin='round'/%3e%3ccircle cx='50' cy='52' r='6' fill='%2300f0ff'/%3e%3c/svg%3e";
+
+    /* 2. AUTHENTICATION */
     const ADMIN_USER = "kkr";
     const ADMIN_PASS = "1212";
 
@@ -1221,6 +1251,20 @@
       });
     }
 
+    function togglePasswordInput() {
+      const type = document.getElementById('upSecurityType').value;
+      const passWrap = document.getElementById('passwordFieldWrap');
+      const passInput = document.getElementById('upPassword');
+      if (type === 'protected') {
+        passWrap.style.display = 'block';
+        passInput.required = true;
+      } else {
+        passWrap.style.display = 'none';
+        passInput.required = false;
+        passInput.value = '';
+      }
+    }
+
     /* 4. STATS & TABLES */
     function formatDownloads(count) {
       const num = Number(count) || 0;
@@ -1251,7 +1295,7 @@
       const recent = list.slice(0, 5);
 
       if (recent.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-dim);">No applications added yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-dim);">No applications added yet.</td></tr>`;
         return;
       }
 
@@ -1259,7 +1303,7 @@
         <tr>
           <td>
             <div class="table-app-cell">
-              <img class="t-icon" src="${app.iconUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'}" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'" />
+              <div class="t-icon"><i class="fa-solid fa-cube"></i></div>
               <div>
                 <div class="t-title">${escapeHtml(app.name)}</div>
                 <div style="font-size: 0.72rem; color: var(--text-dim);">${escapeHtml(app.developer || 'KK Studio')}</div>
@@ -1268,6 +1312,9 @@
           </td>
           <td><span style="color: var(--cyan-bright); font-weight:600;">${app.category || 'Other'}</span></td>
           <td>${app.type || 'Mobile APK'}</td>
+          <td>
+            ${app.password ? `<span class="badge-status badge-lock"><i class="fa-solid fa-lock"></i> Locked (${escapeHtml(app.password)})</span>` : `<span class="badge-status badge-pub"><i class="fa-solid fa-lock-open"></i> Free</span>`}
+          </td>
           <td>v${app.version || '1.0.0'}</td>
           <td>${formatDownloads(app.downloadCount)}</td>
           <td>
@@ -1298,7 +1345,7 @@
       }
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-dim);">No applications found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-dim);">No applications found.</td></tr>`;
         return;
       }
 
@@ -1306,7 +1353,7 @@
         <tr>
           <td>
             <div class="table-app-cell">
-              <img class="t-icon" src="${app.iconUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'}" />
+              <div class="t-icon"><i class="fa-solid fa-cube"></i></div>
               <div>
                 <div class="t-title">${escapeHtml(app.name)}</div>
                 <div style="font-size: 0.72rem; color: var(--text-dim);">${escapeHtml(app.developer || 'KK Studio')}</div>
@@ -1315,6 +1362,9 @@
           </td>
           <td><span style="color: var(--cyan-bright); font-weight: 600;">${app.category || 'Other'}</span></td>
           <td>${app.type || 'APK'}</td>
+          <td>
+            ${app.password ? `<span class="badge-status badge-lock"><i class="fa-solid fa-lock"></i> Pass: ${escapeHtml(app.password)}</span>` : `<span class="badge-status badge-pub">Public</span>`}
+          </td>
           <td>v${app.version || '1.0'}</td>
           <td>${app.fileSize || 'N/A'}</td>
           <td><i class="fa-solid fa-download" style="color: var(--cyan-bright); font-size: 0.75rem;"></i> ${formatDownloads(app.downloadCount)}</td>
@@ -1367,7 +1417,7 @@
           <td><strong style="color: ${index < 3 ? 'var(--cyan-bright)' : 'var(--text-dim)'}; font-size: 1.1rem;">#${index + 1}</strong></td>
           <td>
             <div class="table-app-cell">
-              <img class="t-icon" src="${app.iconUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&q=80'}" />
+              <div class="t-icon"><i class="fa-solid fa-cube"></i></div>
               <div class="t-title">${escapeHtml(app.name)}</div>
             </div>
           </td>
@@ -1381,7 +1431,7 @@
       `).join('');
     }
 
-    /* 5. FAST UPLOAD */
+    /* 5. BULLETPROOF UPLOAD ENGINE */
     function onFileSelected(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1400,69 +1450,92 @@
     async function handleUploadSubmit(e) {
       e.preventDefault();
       
-      if (!selectedUploadFile) {
-        showToast("Please select an application file first!", "error");
+      const directUrlVal = document.getElementById("upDirectUrl").value.trim();
+
+      if (!selectedUploadFile && !directUrlVal) {
+        showToast("Please choose a file OR enter a download URL!", "error");
         return;
       }
 
       const btn = document.getElementById("btnUploadSubmit");
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading Fast...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
 
       const name = document.getElementById("upName").value.trim();
       const type = document.getElementById("upType").value;
       const category = document.getElementById("upCategory").value;
       const version = document.getElementById("upVersion").value.trim() || "1.0.0";
       const dev = document.getElementById("upDev").value.trim() || 'KK Studio';
-      const size = document.getElementById("upSize").value.trim() || `${(selectedUploadFile.size / (1024 * 1024)).toFixed(2)} MB`;
-      const iconUrl = document.getElementById("upIconUrl").value.trim() || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80';
+      const size = document.getElementById("upSize").value.trim() || (selectedUploadFile ? `${(selectedUploadFile.size / (1024 * 1024)).toFixed(2)} MB` : '15 MB');
       const desc = document.getElementById("upDesc").value.trim();
       const changelog = document.getElementById("upChangelog").value.trim();
       const published = document.getElementById("upPublished").checked;
+      
+      const secType = document.getElementById("upSecurityType").value;
+      const appPassword = secType === 'protected' ? document.getElementById("upPassword").value.trim() : "";
 
-      const progressWrap = document.getElementById("uploadProgressWrap");
-      const progressBar = document.getElementById("uploadProgressBar");
-      const progressPercent = document.getElementById("uploadProgressPercent");
-      const progressStatus = document.getElementById("uploadProgressStatus");
-      progressWrap.style.display = "block";
+      if (secType === 'protected' && !appPassword) {
+        showToast("Please set an unlock password!", "error");
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        return;
+      }
+
+      let fileDownloadUrl = directUrlVal;
+      let storagePath = "";
+
+      // If file selected, perform direct streaming
+      if (selectedUploadFile) {
+        const progressWrap = document.getElementById("uploadProgressWrap");
+        const progressBar = document.getElementById("uploadProgressBar");
+        const progressPercent = document.getElementById("uploadProgressPercent");
+        const progressStatus = document.getElementById("uploadProgressStatus");
+        progressWrap.style.display = "block";
+
+        try {
+          const safeName = Date.now() + "_" + selectedUploadFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
+          storagePath = `apps/${safeName}`;
+          const storageRef = storage.ref(storagePath);
+
+          const uploadTask = storageRef.put(selectedUploadFile);
+
+          fileDownloadUrl = await new Promise((resolve, reject) => {
+            uploadTask.on(
+              firebase.storage.TaskEvent.STATE_CHANGED,
+              (snapshot) => {
+                const transferredMB = (snapshot.bytesTransferred / (1024 * 1024)).toFixed(1);
+                const totalMB = (snapshot.totalBytes / (1024 * 1024)).toFixed(1);
+                const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100) || 0;
+                
+                progressBar.style.width = percent + "%";
+                progressPercent.textContent = `${percent}% (${transferredMB}/${totalMB} MB)`;
+                progressStatus.textContent = "Streaming to Cloud Storage...";
+              },
+              (error) => {
+                console.error("Firebase Storage Put Error:", error);
+                reject(error);
+              },
+              async () => {
+                try {
+                  const url = await uploadTask.snapshot.ref.getDownloadURL();
+                  resolve(url);
+                } catch (err) {
+                  reject(err);
+                }
+              }
+            );
+          });
+        } catch (storageErr) {
+          console.warn("Storage upload note:", storageErr);
+          showToast("Storage CORS/Upload Notice: " + (storageErr.message || "Checking file stream"), "error");
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          return;
+        }
+      }
 
       try {
-        const safeName = Date.now() + "_" + selectedUploadFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
-        const storagePath = `apps/${safeName}`;
-        const storageRef = storage.ref(storagePath);
-
-        const metadata = {
-          contentType: selectedUploadFile.type || 'application/octet-stream',
-          cacheControl: 'public,max-age=31536000'
-        };
-
-        const uploadTask = storageRef.put(selectedUploadFile, metadata);
-
-        let fileDownloadUrl = await new Promise((resolve, reject) => {
-          uploadTask.on(
-            firebase.storage.TaskEvent.STATE_CHANGED,
-            (snapshot) => {
-              const transferredMB = (snapshot.bytesTransferred / (1024 * 1024)).toFixed(1);
-              const totalMB = (snapshot.totalBytes / (1024 * 1024)).toFixed(1);
-              const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-              
-              progressBar.style.width = percent + "%";
-              progressPercent.textContent = `${percent}% (${transferredMB}/${totalMB} MB)`;
-              progressStatus.textContent = "Streaming to Cloud Storage...";
-            },
-            (error) => reject(error),
-            async () => {
-              try {
-                const url = await uploadTask.snapshot.ref.getDownloadURL();
-                resolve(url);
-              } catch (err) {
-                reject(err);
-              }
-            }
-          );
-        });
-
         // Write directly to Realtime Database
         const newAppRef = rtdb.ref("apps").push();
         await newAppRef.set({
@@ -1472,12 +1545,14 @@
           version,
           developer: dev,
           fileSize: size,
-          iconUrl,
+          iconUrl: DEFAULT_BLACK_LOGO,
           fileUrl: fileDownloadUrl,
           storagePath: storagePath,
           description: desc,
           updateInformation: changelog,
           published,
+          password: appPassword,
+          isProtected: !!appPassword,
           downloadCount: 0,
           createdAt: firebase.database.ServerValue.TIMESTAMP,
           updatedAt: firebase.database.ServerValue.TIMESTAMP
@@ -1486,14 +1561,15 @@
         showToast(`App "${name}" uploaded & live on Store!`, "success");
         
         document.getElementById("uploadAppForm").reset();
-        document.getElementById("dropzoneFileName").textContent = "Click or Drop File Here";
-        progressWrap.style.display = "none";
+        document.getElementById("dropzoneFileName").textContent = "Click to Browse or Drag File Here";
+        document.getElementById("passwordFieldWrap").style.display = "none";
+        document.getElementById("uploadProgressWrap").style.display = "none";
         selectedUploadFile = null;
         switchTab("all-apps");
 
       } catch (err) {
-        console.error("Upload error:", err);
-        showToast("Upload Failed: " + (err.message || err), "error");
+        console.error("RTDB Write error:", err);
+        showToast("Database Save Failed: " + (err.message || err), "error");
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
@@ -1535,10 +1611,10 @@
       document.getElementById("editName").value = app.name || '';
       document.getElementById("editCategory").value = app.category || 'Other';
       document.getElementById("editVersion").value = app.version || '1.0.0';
+      document.getElementById("editPassword").value = app.password || '';
       document.getElementById("editDev").value = app.developer || '';
       document.getElementById("editDownloads").value = app.downloadCount || 0;
       document.getElementById("editFileUrl").value = app.fileUrl || '';
-      document.getElementById("editIconUrl").value = app.iconUrl || '';
       document.getElementById("editDesc").value = app.description || '';
       document.getElementById("editPublished").checked = !!app.published;
 
@@ -1554,6 +1630,8 @@
       const appId = document.getElementById("editAppId").value;
       if (!appId) return;
 
+      const pwd = document.getElementById("editPassword").value.trim();
+
       const payload = {
         name: document.getElementById("editName").value.trim(),
         category: document.getElementById("editCategory").value,
@@ -1561,8 +1639,9 @@
         developer: document.getElementById("editDev").value.trim(),
         downloadCount: Number(document.getElementById("editDownloads").value) || 0,
         fileUrl: document.getElementById("editFileUrl").value.trim(),
-        iconUrl: document.getElementById("editIconUrl").value.trim(),
         description: document.getElementById("editDesc").value.trim(),
+        password: pwd,
+        isProtected: !!pwd,
         published: document.getElementById("editPublished").checked,
         updatedAt: firebase.database.ServerValue.TIMESTAMP
       };
